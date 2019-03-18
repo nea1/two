@@ -1,0 +1,18 @@
+sudo: required
+language: generic
+
+services:
+  - docker
+
+before_script:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+# if commit is tagged, then tag docker image with the tag & push image (otherwise tag with commit id & no push)
+script:
+  - |
+    if [ "${TRAVIS_TAG}" = "" ]; then
+      docker build --build-arg tag=${TRAVIS_COMMIT} -t n3a1/two:${TRAVIS_COMMIT} .
+    else
+      docker build --build-arg tag=${TRAVIS_TAG} -t n3a1/two:${TRAVIS_TAG} .
+      docker push n3a1/two:${TRAVIS_TAG}
+    fi
